@@ -133,7 +133,7 @@ public class Bca {
      */
     public void GetMutation() {
         List<Mutation> mutations = new ArrayList<>();
-//        Inserted = Connect.GetMapWasInserted();
+        Inserted = Connect.GetMapWasInserted();
         if (!this.isLoggedIn) {
             this.Login(USER, PASS);
         }
@@ -157,12 +157,15 @@ public class Bca {
             for (Element elm : tr) {
                 if (i > 0) {
                     Elements td = elm.select("td");
+                    
+                    /*
                     Tool.Logger("[INFO]", MessageFormat.format("{0}:{1}:{2}:{3}",
                             Tool.GetString(td.get(1).text()),
                             Tool.GetNominal(td.get(3).text()),
                             Tool.GetString(td.get(4).text()).equals("CR") ? "CR" : "DB",
                             Tool.GetNominal(td.get(5).text())));
-                    /*
+                    */
+                    
                     if (!Inserted.containsKey(MessageFormat.format("{0}:{1}:{2}:{3}",
                             Tool.GetString(td.get(1).text()),
                             Tool.GetNominal(td.get(3).text()),
@@ -176,11 +179,11 @@ public class Bca {
                     } else {
                         Tool.Logger("[INFO]" + Bca.class.getName() + " line 167 ", " X Data already exist...");
                     }
-                    */
+                    
                 }
                 i++;
             }
-//            DB.InsertMutation(mutations);
+            DB.InsertMutation(mutations);
         } catch (IOException e) {
             Tool.Logger("[ERROR]" + Bca.class.getName() + " line 174 ", e.getMessage());
         }

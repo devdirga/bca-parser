@@ -18,7 +18,7 @@ public class Conf {
     private static final String DBNAME = "ibank_bca";
     private static final String USER = "user";
     private static final String PASS = "pass";
-    private static final long LOOPWAIT = 1;
+    private static final long LOOPWAIT = 10;
    
     
     /**
