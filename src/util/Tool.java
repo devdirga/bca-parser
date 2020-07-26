@@ -1,10 +1,11 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template file, choose Tool | Templates
  * and open the template in the editor.
  */
 package util;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -16,7 +17,7 @@ import java.util.Map;
  *
  * @author Dirga
  */
-public class Tools {
+public class Tool {
     
     public static String EMPTY = "";
     public static String LOGIN_URL = "https://ibank.klikbca.com/";
@@ -34,8 +35,23 @@ public class Tools {
      * @return 
      */
     public static String GetTime() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-        return sdf.format(new Date());
+        return (new SimpleDateFormat("dd-MM-yyyy HH:mm:ss")).format(new Date());
+    }
+    
+    /**
+     * @param Header     
+     * @param Log     
+     */
+    public static void Logger(String Header, Exception Log){
+        System.out.println(MessageFormat.format("{0}{1}:{2}", Header, GetTime(), Log));
+    }
+    
+    /**
+     * @param Header     
+     * @param Log     
+     */
+    public static void Logger(String Header, String Log){
+        System.out.println(MessageFormat.format("{0}{1}:{2}", Header, GetTime(), Log));
     }
     
     /**

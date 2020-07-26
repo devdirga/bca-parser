@@ -1,11 +1,11 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template file, choose Tool | Templates
  * and open the template in the editor.
  */
-package db;
+package model;
 
-import util.Tools;
+import util.Tool;
 
 /**
  *
@@ -23,8 +23,8 @@ public class Mutation {
     private String saldo;
     private String tglsys;
     private String waktusys;
-    private String catatan1 = Tools.EMPTY;
-    private String catatan2 = Tools.EMPTY;
+    private String catatan1 = Tool.EMPTY;
+    private String catatan2 = Tool.EMPTY;
     
     public Mutation(String Keterangan, String Kodebank, String Dbkr, String Nominal, String Saldo){
         this.keterangan = Keterangan;

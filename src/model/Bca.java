@@ -1,42 +1,39 @@
 /*
  * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
+ * To change this template file, choose Tool | Templates
  * and open the template in the editor.
  */
-package bca;
+package model;
 
-import db.DBAdapter;
-import db.Mutation;
+import util.Connect;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.Period;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import util.Tools;
+import util.Tool;
 
 /**
  *
  * @author Dirga
  */
 public class Bca {
-    
-    DBAdapter DB;
-    Map<String, String> mapHasInserted = new HashMap();
+
+    Connect DB;
+    Map<String, String> Inserted = new HashMap();
     private final String USER;
     private final String PASS;
     protected boolean isLoggedIn = false;
     public String IP;
-    
-    public Map<String, String> Headers = new HashMap<String, String>() {{
+
+    public Map<String, String> Headers = new HashMap<String, String>() {
+        {
             put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
             put("Accept-Encoding", "gzip, deflate, br");
             put("Accept-Language", "en-US,en;q=0.9");
@@ -44,7 +41,7 @@ public class Bca {
             put("Connection", "keep-alive");
             put("Content-Length", "321");
             put("Content-Type", "application/x-www-form-urlencoded");
-            put("Referer", Tools.LOGIN_ACTION);
+            put("Referer", Tool.LOGIN_ACTION);
             put("Sec-Fetch-Dest", "document");
             put("Sec-Fetch-Mode", "navigate");
             put("Sec-Fetch-Site", "same-origin");
@@ -52,7 +49,8 @@ public class Bca {
             put("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36");
             put("Origin", "https://ibank.klikbca.com");
             put("Upgrade-Insecure-Requests", "1");
-    }};
+        }
+    };
 
     public Map<String, String> Cookies = new HashMap<>();
 
@@ -65,7 +63,7 @@ public class Bca {
         this.USER = USER;
         this.PASS = PASS;
         this.IP = IP;
-        DB = new DBAdapter();
+//        DB = new Connect();
     }
 
     /**
@@ -74,15 +72,16 @@ public class Bca {
      */
     private void Login(String USER, String PASS) {
         try {
-            Response res = Jsoup.connect(Tools.LOGIN_URL)
+            Response res = Jsoup.connect(Tool.LOGIN_URL)
                     .headers(Headers)
                     .execute();
-            this.Headers.put("Cookie", Tools.Implode(";", res.cookies()));
+            this.Headers.put("Cookie", Tool.Implode(";", res.cookies()));
             this.Cookies = res.cookies();
-        } catch (IOException ex) {
-            System.out.println("[IOException] " + Tools.GetTime() + ex.getMessage());
+        } catch (IOException e) {
+            Tool.Logger("[ERROR]" + Bca.class.getName() + " line 83 ", e.getMessage());
         }
-        Map<String, String> data = new HashMap<String, String>() {{
+        Map<String, String> data = new HashMap<String, String>() {
+            {
                 put("value(user_id)", USER);
                 put("value(pswd)", PASS);
                 put("value(Submit)", "LOGIN");
@@ -91,17 +90,18 @@ public class Bca {
                 put("user_ip", IP);
                 put("value(mobile)", "true");
                 put("mobile", "true");
-        }};
+            }
+        };
         try {
-            Jsoup.connect(Tools.LOGIN_ACTION)
-                    .referrer(Tools.LOGIN_URL)
+            Jsoup.connect(Tool.LOGIN_ACTION)
+                    .referrer(Tool.LOGIN_URL)
                     .cookies(this.Cookies)
                     .headers(this.Headers)
                     .data(data)
                     .post();
             this.isLoggedIn = true;
-        } catch (IOException ex) {
-            System.out.println("[ERROR] " + Tools.GetTime() + " : " + ex);
+        } catch (IOException e) {
+            Tool.Logger("[ERROR]" + Bca.class.getName() + " line 104 ", e.getMessage());
         }
     }
 
@@ -114,8 +114,8 @@ public class Bca {
             this.Login(USER, PASS);
         }
         try {
-            Document doc = Jsoup.connect(Tools.SALDO_URL)
-                    .referrer(Tools.MENU_SALDO_URL)
+            Document doc = Jsoup.connect(Tool.SALDO_URL)
+                    .referrer(Tool.MENU_SALDO_URL)
                     .headers(this.Headers)
                     .cookies(this.Cookies)
                     .post();
@@ -123,9 +123,8 @@ public class Bca {
             Elements tr = tables.get(2).select("tr");
             Elements td = tr.get(1).select("td");
             saldo = td.get(3).text();
-            System.out.println("[SUCCESS] " + Tools.GetTime() + " : " + saldo);
-        } catch (IOException ex) {
-            Logger.getLogger(Bca.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e) {
+            Tool.Logger("[ERROR]" + Bca.class.getName() + " line 123 ", e.getMessage());
         }
     }
 
@@ -133,23 +132,23 @@ public class Bca {
      * Get Mutation
      */
     public void GetMutation() {
-        List<Mutation> mutationList = new ArrayList<>();
-        mapHasInserted = DBAdapter.GetMapWasInserted();
+        List<Mutation> mutations = new ArrayList<>();
+//        Inserted = Connect.GetMapWasInserted();
         if (!this.isLoggedIn) {
             this.Login(USER, PASS);
         }
         try {
-            Jsoup.connect(Tools.ACCOUNT_STATEMENT_ACTION)
-                    .referrer(Tools.ACCOUNT_STATEMENT_MENU)
+            Jsoup.connect(Tool.ACCOUNT_STATEMENT_ACTION)
+                    .referrer(Tool.ACCOUNT_STATEMENT_MENU)
                     .headers(this.Headers)
                     .cookies(this.Cookies)
                     .post();
 
-            Document docs = Jsoup.connect(Tools.ACCOUNT_STATEMENT_VIEW)
-                    .referrer(Tools.ACCOUNT_STATEMENT_ACTION)
+            Document docs = Jsoup.connect(Tool.ACCOUNT_STATEMENT_VIEW)
+                    .referrer(Tool.ACCOUNT_STATEMENT_ACTION)
                     .headers(this.Headers)
                     .cookies(this.Cookies)
-                    .data(Tools.GetQueryParam())
+                    .data(Tool.GetQueryParam())
                     .post();
 
             Elements tables = docs.select("table");
@@ -157,21 +156,33 @@ public class Bca {
             int i = 0;
             for (Element elm : tr) {
                 if (i > 0) {
-                    Elements td = elm.select("td");                    
-                    String Dbkr = Tools.GetString(td.get(4).text()).equals("CR") ? "CR" : "DB";
-                    if (!mapHasInserted.containsKey(Tools.GetString(td.get(1).text()) + ":" + Tools.GetNominal(td.get(3).text()) + ":" + Dbkr + ":" + Tools.GetNominal(td.get(5).text()))){
-                        if( mutationList.add(new Mutation(Tools.GetString(td.get(1).text()), "BCA", Dbkr, Tools.GetNominal(td.get(3).text()), Tools.GetNominal(td.get(5).text())))) {
-                            System.out.println("[SUCCESS] " + Tools.GetTime() + " New Data inserted"  );
-                        }
+                    Elements td = elm.select("td");
+                    Tool.Logger("[INFO]", MessageFormat.format("{0}:{1}:{2}:{3}",
+                            Tool.GetString(td.get(1).text()),
+                            Tool.GetNominal(td.get(3).text()),
+                            Tool.GetString(td.get(4).text()).equals("CR") ? "CR" : "DB",
+                            Tool.GetNominal(td.get(5).text())));
+                    /*
+                    if (!Inserted.containsKey(MessageFormat.format("{0}:{1}:{2}:{3}",
+                            Tool.GetString(td.get(1).text()),
+                            Tool.GetNominal(td.get(3).text()),
+                            Tool.GetString(td.get(4).text()).equals("CR") ? "CR" : "DB",
+                            Tool.GetNominal(td.get(5).text())))) {
+                        mutations.add(new Mutation(Tool.GetString(td.get(1).text()),
+                                "BCA",
+                                Tool.GetString(td.get(4).text()).equals("CR") ? "CR" : "DB",
+                                Tool.GetNominal(td.get(3).text()),
+                                Tool.GetNominal(td.get(5).text())));
                     } else {
-                        System.out.println("[INFO] " + Tools.GetTime() + " Data already exist"  );
+                        Tool.Logger("[INFO]" + Bca.class.getName() + " line 167 ", " X Data already exist...");
                     }
+                    */
                 }
                 i++;
             }
-            DB.InsertMutation(mutationList);
+//            DB.InsertMutation(mutations);
         } catch (IOException e) {
-            System.out.println("[ERROR] " + Tools.GetTime() + " : " + e.getMessage());
+            Tool.Logger("[ERROR]" + Bca.class.getName() + " line 174 ", e.getMessage());
         }
     }
 
@@ -180,14 +191,14 @@ public class Bca {
      */
     public void Logout() {
         try {
-            Jsoup.connect(Tools.LOGIN_ACTION)
+            Jsoup.connect(Tool.LOGIN_ACTION)
                     .headers(this.Headers)
                     .cookies(this.Cookies)
-                    .referrer(Tools.LOGIN_URL)
+                    .referrer(Tool.LOGIN_URL)
                     .execute();
-        } catch (IOException ex) {
-            System.out.println("[ERROR] " + Tools.GetTime() + " : " + ex);
+        } catch (IOException e) {
+            Tool.Logger("[ERROR]" + Bca.class.getName() + " line 189 ", e.getMessage());
         }
     }
-    
+
 }
